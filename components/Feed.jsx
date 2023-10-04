@@ -19,6 +19,8 @@ const PromptCardList = ({ data, handleTagClick }) => {
 const Feed = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
+
+  const [searchTimeout, setSearchTimeout] = useState(null);
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
 
@@ -32,19 +34,26 @@ const Feed = () => {
   }, []);
 
   const handleSearchChange = event => {
+    clearTimeout(searchTimeout);
     const { value } = event.target;
     setSearchText(value);
     if (!value) {
       return setFilteredPosts([]);
     }
-    let filtered = posts.filter(
-      p =>
-        p.prompt.toLowerCase().includes(value.toLowerCase()) ||
-        p.tag.toLowerCase().includes(value.toLowerCase()) ||
-        p.creator.username.toLowerCase().includes(value.toLowerCase()) ||
-        p.creator.email.toLowerCase().includes(value.toLowerCase())
+
+    // debounce method
+    setSearchTimeout(
+      setTimeout(() => {
+        let filtered = posts.filter(
+          p =>
+            p.prompt.toLowerCase().includes(value.toLowerCase()) ||
+            p.tag.toLowerCase().includes(value.toLowerCase()) ||
+            p.creator.username.toLowerCase().includes(value.toLowerCase()) ||
+            p.creator.email.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredPosts([...filtered]);
+      }, 500)
     );
-    setFilteredPosts([...filtered]);
   };
 
   const handleTagClick = tag => {
